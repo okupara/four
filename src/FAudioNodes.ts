@@ -2,8 +2,11 @@ import { from } from "rxjs"
 import { switchMap, shareReplay } from "rxjs/operators"
 import { Connectable, getAudioContext, FBaseNode } from "./Four"
 
-// I don't think to decide easily to use class is not good
-// but I want use some method which is the same signature with methods of AudioNode
+interface CreateSourceParams<T extends AudioNode> {
+  nextNode?: T
+}
+
+// I don't think to decide easily to use class is not good, but...
 export class OneshotNode extends FBaseNode {
   private _url: string
   private _audioBuffer: AudioBuffer
@@ -29,10 +32,19 @@ export class OneshotNode extends FBaseNode {
   get ready() {
     return this._ready
   }
-  createAudioSourceBufferNode(): AudioBufferSourceNode {
+  createAudioSourceBufferNode<T extends AudioNode>(
+    p: CreateSourceParams<T>
+  ): AudioBufferSourceNode | null {
+    if (!this._ready) {
+      return null
+    }
+    if (!p.nextNode) {
+      return null
+    }
     const ctx = getAudioContext()
     const bs = ctx.createBufferSource()
     bs.buffer = this._audioBuffer
+    bs.connect(p.nextNode)
     return bs
   }
 }

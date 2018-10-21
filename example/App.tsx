@@ -1,5 +1,6 @@
 import * as React from "react"
 import sine from "./SineTest"
+import one from "./OneshotTest"
 
 export default () => (
   <div>
@@ -7,4 +8,5 @@ export default () => (
   </div>
 )
 
-sine()
+// sine()
+one()

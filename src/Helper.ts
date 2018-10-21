@@ -1,4 +1,5 @@
 import { getAudioContext } from "./Four"
+import { OneshotNode } from "./FAudioNodes"
 
 export type OscilatorTypes = "sine" | "square" | "triangle" | "custom"
 export interface CreateOscilatorArg {
@@ -28,3 +29,5 @@ export const createGain = (param: number) => {
   gain.gain.value = param
   return gain
 }
+
+export const createOneshot = (url: string) => new OneshotNode(url)

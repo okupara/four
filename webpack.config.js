@@ -1,5 +1,6 @@
 const path = require("path")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
+const CopyWebpackPlugin = require("copy-webpack-plugin")
 
 const DEV_MODE = "development"
 const PROD_MODE = "production"
@@ -45,7 +46,8 @@ module.exports = {
     new HtmlWebpackPlugin({
       inject: true,
       template: path.join(process.cwd(), "resources", "index.html")
-    })
+    }),
+    new CopyWebpackPlugin(["resources/test1.wav"])
   ],
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".json"]
