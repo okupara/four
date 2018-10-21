@@ -1,27 +1,27 @@
-const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+const path = require("path")
+const HtmlWebpackPlugin = require("html-webpack-plugin")
 
-const DEV_MODE = "development";
-const PROD_MODE = "production";
-const NONE = "none";
+const DEV_MODE = "development"
+const PROD_MODE = "production"
+const NONE = "none"
 
 const mode = (() => {
-  const nEnv = process.env.NODE_ENV;
+  const nEnv = process.env.NODE_ENV
   switch (nEnv) {
     case PROD_MODE:
     case DEV_MODE:
-      return nEnv;
+      return nEnv
     default:
-      return NONE;
+      return NONE
   }
-})();
+})()
 
-const isDevMode = () => mode === DEV_MODE;
+const isDevMode = () => mode === DEV_MODE
 
 module.exports = {
   mode,
   entry: {
-    app: "./src/index.tsx"
+    app: "./example/index.tsx"
   },
   output: {
     path: `${__dirname}/dist`,
@@ -44,10 +44,10 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       inject: true,
-      template: path.join(process.cwd(), "public", "index.html")
+      template: path.join(process.cwd(), "resources", "index.html")
     })
   ],
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".json"]
   }
-};
+}
