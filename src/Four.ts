@@ -1,6 +1,7 @@
-import { Observable, combineLatest, of } from "rxjs"
+import { Observable, /* combineLatest, */ of } from "rxjs"
+import { combineLatest, map } from "rxjs/operators"
 import { definedVal } from "./Util"
-// import { Lens } from "monocle-ts"
+import { Lens } from "monocle-ts"
 
 const audioContext = new AudioContext()
 export const getAudioContext = () => audioContext
@@ -27,25 +28,17 @@ export type Connectable =
 const isAudioNode = (n: Connectable): n is AudioNode => n instanceof AudioNode
 
 const connect = (from: Connectable, to: Connectable) => {
-  if (isAudioNode(from) && isAudioNode(to)) {
-    from.connect(to)
-  }
+  if (isAudioNode(from) && isAudioNode(to)) from.connect(to)
 }
 
+/* TODO: make the typing of the fields be Generics. 
+  we have to use "as GainNode" until we finish to do that.
+*/
 interface FNode {
   readonly previousNode?: BasicNode
   readonly nextNode?: BasicNode
   readonly targetNode: BasicNode
 }
-const FNode = (
-  targetNode: BasicNode,
-  previousNode?: BasicNode,
-  nextNode?: BasicNode
-): FNode => ({
-  previousNode: previousNode,
-  nextNode: nextNode,
-  targetNode: targetNode
-})
 
 interface FNodeReducer {
   subscribe: () => void
@@ -56,9 +49,13 @@ const FNodeReducer = (subscribe: () => void, fnode: FNode): FNodeReducer => ({
   fnode
 })
 
-// const previous = Lens.fromProp<FNode, "previousNode">("previousNode")
-// const next = Lens.fromProp<FNode, "nextNode">("nextNode")
-// const target = Lens.fromProp<FNode, "targetNode">("targetNode")
+const fnodeLens = Lens.fromProp<FNodeReducer, "fnode">("fnode")
+const previous = fnodeLens.compose(
+  Lens.fromProp<FNode, "previousNode">("previousNode")
+)
+const target = fnodeLens.compose(
+  Lens.fromProp<FNode, "targetNode">("targetNode")
+)
 
 export const createFNode = <S>(
   targetNode: BasicNode,
@@ -71,39 +68,51 @@ export const createFNode = <S>(
   return {
     subscribe() {
       if (observable && combineFunction) {
-        combineLatest(of(targetNode), observable, (a, b) =>
-          Object.assign({}, a, b)
-        ).subscribe()
+        observable
+          .pipe(
+            combineLatest(of(this.fnode), (a, b) => Object.assign({}, b, a)),
+            map(combineFunction)
+          )
+          .subscribe(() => {})
       }
     },
-    fnode: FNode(targetNode)
+    fnode: { targetNode: targetNode }
   }
 }
 
-export const track = (...args: FNodeReducer[]) =>
-  args.reduce((prev, current, i) => {
-    if (prev === null) {
-      return FNodeReducer(current.subscribe, FNode(current.fnode.targetNode))
+export const track = (...args: FNodeReducer[]) => {
+  const length = args.length
+  // if we don't put initial value, reduce runs with filling prev and current, which the first and second elements of a list.
+  // and it executes callback length - 1 times.
+  return args.reduce((p, c, i) => {
+    if (i === 1) {
+      FNodeReducer(p.subscribe, {
+        nextNode: target.get(c),
+        targetNode: target.get(p)
+      }).subscribe()
     } else {
-      const { previousNode, targetNode } = prev.fnode
-      FNodeReducer(
-        prev.subscribe,
-        FNode(targetNode, previousNode, current.fnode.targetNode)
-      ).subscribe()
-      connect(
-        prev.fnode.targetNode,
-        current.fnode.targetNode
-      )
+      FNodeReducer(p.subscribe, {
+        targetNode: target.get(p),
+        previousNode: previous.get(p),
+        nextNode: target.get(c)
+      }).subscribe()
     }
+    connect(
+      target.get(p),
+      target.get(c)
+    )
     if (i === args.length - 1) {
-      const targetNode = current.fnode.targetNode
-      FNodeReducer(
-        current.subscribe,
-        FNode(targetNode, prev.fnode.targetNode)
-      ).subscribe()
+      FNodeReducer(c.subscribe, {
+        previousNode: target.get(p),
+        targetNode: target.get(c)
+      }).subscribe()
     }
-    return FNodeReducer(current.subscribe, FNode(current.fnode.targetNode))
+    return FNodeReducer(c.subscribe, {
+      previousNode: target.get(p),
+      targetNode: target.get(c)
+    })
   })
+}
 
 export const mix = (...args: AudioNode[]) =>
   args.reduce((gainNode, currentNode) => {
@@ -111,8 +120,17 @@ export const mix = (...args: AudioNode[]) =>
     return gainNode
   }, audioContext.createGain())
 
-export const render = (t: Connectable) =>
-  connect(
-    t,
-    audioContext.destination
-  )
+const isFNodeReducer = (n: any): n is FNodeReducer => n.subscribe && n.fnode
+export const render = (t: Connectable | FNodeReducer) => {
+  if (isFNodeReducer(t)) {
+    connect(
+      target.get(t),
+      audioContext.destination
+    )
+  } else {
+    connect(
+      t,
+      audioContext.destination
+    )
+  }
+}

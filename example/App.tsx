@@ -1,3 +1,10 @@
 import * as React from "react"
+import sine from "./SineTest"
 
-export default () => <div>app</div>
+export default () => (
+  <div>
+    <button onClick={() => console.log("foo")}>hello</button>
+  </div>
+)
+
+sine()
