@@ -32,19 +32,14 @@ export class OneshotNode extends FBaseNode {
   get ready() {
     return this._ready
   }
-  createAudioSourceBufferNode<T extends AudioNode>(
-    p: CreateSourceParams<T>
-  ): AudioBufferSourceNode | null {
+  createAudioSourceBufferNode(): AudioBufferSourceNode | null {
     if (!this._ready) {
-      return null
-    }
-    if (!p.nextNode) {
       return null
     }
     const ctx = getAudioContext()
     const bs = ctx.createBufferSource()
     bs.buffer = this._audioBuffer
-    bs.connect(p.nextNode)
+
     return bs
   }
 }

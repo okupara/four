@@ -1,5 +1,6 @@
 import { getAudioContext } from "./Four"
 import { OneshotNode } from "./FAudioNodes"
+import { isNumber } from "./Util"
 
 export type OscilatorTypes = "sine" | "square" | "triangle" | "custom"
 export interface CreateOscilatorArg {
@@ -24,9 +25,15 @@ export const createOscilator = (param: Partial<CreateOscilatorArg>) => {
   return osc
 }
 
-export const createGain = (param: number) => {
+type GainFunc = (gainNode: GainNode) => void
+
+export const createGain = (param: number | GainFunc) => {
   const gain = getAudioContext().createGain()
-  gain.gain.value = param
+  if (isNumber(param)) {
+    gain.gain.value = param
+  } else {
+    param(gain)
+  }
   return gain
 }
 
