@@ -1,5 +1,5 @@
 import { getAudioContext } from "./Four"
-import { OneshotNode } from "./FAudioNodes"
+import { OneshotNode, FWorkletNode } from "./FAudioNodes"
 import { isNumber } from "./Util"
 
 export type OscilatorTypes = "sine" | "square" | "triangle" | "custom"
@@ -38,3 +38,6 @@ export const createGain = (param: number | GainFunc) => {
 }
 
 export const createOneshot = (url: string) => new OneshotNode(url)
+
+export const createWorklet = (url: string, registeredName: string) =>
+  new FWorkletNode(url, registeredName)

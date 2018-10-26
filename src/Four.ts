@@ -2,34 +2,10 @@ import { Observable, /* combineLatest, */ of } from "rxjs"
 import { combineLatest, map } from "rxjs/operators"
 import { definedVal } from "./Util"
 import { Lens } from "monocle-ts"
+import { BasicNode, connect, Connectable } from "./Connect"
 
 const audioContext = new AudioContext()
 export const getAudioContext = () => audioContext
-
-interface FAudioNode {
-  connect(con: Connectable): void
-}
-export class FBaseNode implements FAudioNode {
-  connect(con: Connectable) {}
-}
-
-type BasicNode = AudioNode | FBaseNode
-
-export type Connectable =
-  | {
-      connect(
-        destinationNode: AudioNode,
-        output?: number,
-        input?: number
-      ): AudioNode
-    }
-  | FAudioNode
-
-const isAudioNode = (n: Connectable): n is AudioNode => n instanceof AudioNode
-
-const connect = (from: Connectable, to: Connectable) => {
-  if (isAudioNode(from) && isAudioNode(to)) from.connect(to)
-}
 
 /* TODO: make the typing of the fields be Generics. 
   we have to use "as GainNode" until we finish to do that.

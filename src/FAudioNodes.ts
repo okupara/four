@@ -1,11 +1,8 @@
 import { from } from "rxjs"
 import { switchMap, shareReplay } from "rxjs/operators"
-import { getAudioContext, FBaseNode } from "./Four"
+import { getAudioContext } from "./Four"
 import { AdsrGain, playAdsr } from "./Adsr"
-
-interface CreateSourceParams<T extends AudioNode> {
-  nextNode?: T
-}
+import { FBaseNode } from "./Connect"
 
 // I don't think to decide easily to use class is not good, but...
 export class OneshotNode extends FBaseNode {
@@ -40,7 +37,7 @@ export class OneshotNode extends FBaseNode {
     return bs
   }
 }
-
+AudioWorkletNode
 export type AudioParamCallback = (
   param: AudioParam,
   currentTime: number
@@ -72,6 +69,37 @@ export const applyAdsr = (
     playParam.detune(sourceNode.detune, currentTime)
     playParam.playbackRate(sourceNode.playbackRate, currentTime)
     playAdsr(playParam, currentTime)
-    sourceNode.start(currentTime + start, 0, durationForPlay)
+    sourceNode.start(currentTime + start, playParam.offset, durationForPlay)
+  }
+}
+
+export class FWorkletNode extends FBaseNode {
+  private _audioWorklet: AudioWorkletNode
+  private _gainNode: GainNode
+  private _ready: boolean
+  constructor(url: string, workletName: string) {
+    super()
+    const context = getAudioContext()
+    this._gainNode = context.createGain()
+    this._ready = false
+
+    from(context.audioWorklet.addModule(url)).subscribe(_ => {
+      const w = new AudioWorkletNode(context, workletName)
+      this._audioWorklet = w
+      this.audioWorklet.connect(this._gainNode)
+      this._ready = true
+    })
+  }
+  get gainNode() {
+    return this._gainNode
+  }
+  get audioWorklet() {
+    return this._audioWorklet
+  }
+  get ready() {
+    return this._ready
+  }
+  connect(node: AudioNode) {
+    this._gainNode.connect(node)
   }
 }

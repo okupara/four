@@ -50,7 +50,8 @@ module.exports = {
     new CopyWebpackPlugin([
       "resources/test1.wav",
       "resources/pipo.mp3",
-      "resources/scheduler.js"
+      "resources/scheduler.js",
+      "resources/pinknoise.js"
     ])
   ],
   resolve: {

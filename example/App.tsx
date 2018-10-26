@@ -1,7 +1,9 @@
 import * as React from "react"
 import sine from "./SineTest"
 import one from "./OneshotTest"
+import two from "./OneshotTest2"
 import simpleSequence from "./SimpleSequenceTest"
+import w from "./WorkletTest"
 
 export default () => (
   <div>
@@ -10,5 +12,8 @@ export default () => (
 )
 
 // sine()
-one()
+// one()
 // simpleSequence()
+// two()
+
+w()
