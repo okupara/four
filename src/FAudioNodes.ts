@@ -66,7 +66,7 @@ export const applyAdsr = (
   sourceNode.connect(playParam.gainNode).connect(nextGain)
   const adsr = playParam.adsr
   const start = adsr.start ? adsr.start : 0
-  const durationForPlay = adsr.duration * 1.1
+  const durationForPlay = adsr.duration * 2
   return () => {
     const currentTime = context.currentTime
     playParam.detune(sourceNode.detune, currentTime)

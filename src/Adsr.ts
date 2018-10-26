@@ -1,4 +1,5 @@
 import { getAudioContext } from "./Four"
+import { addListener } from "cluster"
 export interface TimeVal {
   time: number // sec
   value: number
@@ -40,11 +41,12 @@ export const createAdsrGain = (adsr: Adsr): AdsrGain => {
 export const playAdsr = (adsrGain: AdsrGain, currentTime: number) => {
   const { adsr, gainNode } = adsrGain
   gainNode.gain.value = 0
+  // const adsrStart = (adsr.start ? adsr.start : 0)
   const timeStart = currentTime + (adsr.start ? adsr.start : 0)
   const timeEndAttack = timeStart + adsr.attack.time
   const timeEndDecay = timeEndAttack + adsr.decay.time
-  const timeEndSustain = currentTime + (adsr.duration - adsr.release.time)
-  const timeEnd = currentTime + adsr.duration
+  const timeEndSustain = timeStart + (adsr.duration - adsr.release.time)
+  const timeEnd = timeStart + adsr.duration
 
   // node.gain.linearRampToValueAtTime(0, currentTime)
 

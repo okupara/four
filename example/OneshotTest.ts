@@ -8,7 +8,6 @@ import {
   AudioParamCallback
 } from "../src/FAudioNodes"
 
-// const interval$ = interval(12000).pipe(map(n => ({ num: n })))
 const context = getAudioContext()
 
 const createOnshotAdsrGain = (
@@ -39,22 +38,22 @@ const createOnshotAdsrGain = (
 const track1 = track(
   createFNode(h.createOneshot("./pipo.mp3"), tick$(180), m => {
     console.log(m)
-    const a1 = createOnshotAdsrGain(0, 0)
-    // const a2 = createOnshotAdsrGain(0.4)
+    const a1 = createOnshotAdsrGain(0)
+    const a2 = createOnshotAdsrGain(0.4)
 
     const playfn1 = applyAdsr(
       m.targetNode as OneshotNode,
       m.nextNode as GainNode,
       a1
     )
-    // const playfn2 = applyAdsr(
-    //   m.targetNode as OneshotNode,
-    //   m.nextNode as GainNode,
-    //   a2
-    // )
+    const playfn2 = applyAdsr(
+      m.targetNode as OneshotNode,
+      m.nextNode as GainNode,
+      a2
+    )
 
     playfn1()
-    // playfn2()
+    playfn2()
   }),
   createFNode(h.createGain(1.0))
 )
