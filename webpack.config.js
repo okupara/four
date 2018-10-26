@@ -49,7 +49,7 @@ module.exports = {
     }),
     new CopyWebpackPlugin([
       "resources/test1.wav",
-      "resources/pipo.wav",
+      "resources/pipo.mp3",
       "resources/scheduler.js"
     ])
   ],

@@ -17,31 +17,28 @@ export interface Adsr {
   release: TimeVal
 }
 
-export class AdsrGain {
-  duration: number
-  offset: number
-  gainNode: GainNode
-  constructor(duration: number, offset: number, gainNode: GainNode) {
-    this.duration = duration
-    this.gainNode = gainNode
-  }
-  connectToGainNode(gainNode: GainNode) {
-    this.gainNode.connect(gainNode)
-  }
-  beConnectedFromNode(node: AudioNode) {
-    node.connect(this.gainNode)
-  }
-}
-
 interface Gainable {
   gain: AudioParam
 }
 
-export const createAdsrGain = (adsr: Adsr) => {
+export type AdsrGainGenerator = (currentTime: number) => AdsrGain
+export interface AdsrGain {
+  adsr: Adsr
+  gainNode: GainNode
+}
+
+export const createAdsrGain = (adsr: Adsr): AdsrGain => {
   console.log("Adsr", adsr)
   const context = getAudioContext()
   const gainNode = context.createGain()
-  const currentTime = context.currentTime
+  return {
+    adsr,
+    gainNode
+  }
+}
+
+export const playAdsr = (adsrGain: AdsrGain, currentTime: number) => {
+  const { adsr, gainNode } = adsrGain
   gainNode.gain.value = 0
   const timeStart = currentTime + (adsr.start ? adsr.start : 0)
   const timeEndAttack = timeStart + adsr.attack.time
@@ -61,6 +58,4 @@ export const createAdsrGain = (adsr: Adsr) => {
   gainNode.gain.linearRampToValueAtTime(adsr.sustain, timeEndSustain)
   // // start release
   gainNode.gain.linearRampToValueAtTime(0, timeEnd)
-
-  return gainNode
 }
