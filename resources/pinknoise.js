@@ -36,4 +36,4 @@ class PinkNoiseGenerator extends AudioWorkletProcessor {
     return true
   }
 }
-registerProcessor("noise", PinkNoiseGenerator)
+registerProcessor("pinknoise", PinkNoiseGenerator)

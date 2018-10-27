@@ -1,7 +1,7 @@
 import { createFNode, track, render, OneshotNode, tick$ } from "../src/"
 import * as h from "../src/Helper"
 import { createAdsrGain, TimeVal } from "../src/Adsr"
-import { getAudioContext } from "../src/Four"
+import getAudioContext from "../src/Context"
 import {
   applyAdsr,
   OneshotPlayParams,

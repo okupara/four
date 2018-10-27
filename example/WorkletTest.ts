@@ -5,7 +5,7 @@ import { timer } from "rxjs"
 const timer$ = timer(800)
 
 const t1 = track(
-  createFNode(h.createWorklet("./pinknoise.js", "noise"), timer$, m => {
+  createFNode(h.createWorklet("./pinknoise.js", "pinknoise"), timer$, m => {
     console.log("callback", m)
   }),
   createFNode(h.createGain(1))

@@ -8,8 +8,6 @@ import {
   combineLatest
 } from "rxjs/operators"
 
-console.log("Timer")
-console.log("FO")
 const worker = new Worker("./scheduler.js")
 const timerSubject = new Subject()
 

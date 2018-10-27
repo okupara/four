@@ -2,10 +2,8 @@ import { Observable, /* combineLatest, */ of } from "rxjs"
 import { combineLatest, map } from "rxjs/operators"
 import { definedVal } from "./Util"
 import { Lens } from "monocle-ts"
-import { BasicNode, connect, Connectable } from "./Connect"
-
-const audioContext = new AudioContext()
-export const getAudioContext = () => audioContext
+import { BasicNode, connect, Connectable } from "./FAudioNodes"
+import context from "./Context"
 
 /* TODO: make the typing of the fields be Generics. 
   we have to use "as GainNode" until we finish to do that.
@@ -94,19 +92,20 @@ export const mix = (...args: AudioNode[]) =>
   args.reduce((gainNode, currentNode) => {
     currentNode.connect(gainNode)
     return gainNode
-  }, audioContext.createGain())
+  }, context().createGain())
 
 const isFNodeReducer = (n: any): n is FNodeReducer => n.subscribe && n.fnode
 export const render = (t: Connectable | FNodeReducer) => {
+  const c = context()
   if (isFNodeReducer(t)) {
     connect(
       target.get(t),
-      audioContext.destination
+      c.destination
     )
   } else {
     connect(
       t,
-      audioContext.destination
+      c.destination
     )
   }
 }

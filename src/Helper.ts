@@ -1,4 +1,4 @@
-import { getAudioContext } from "./Four"
+import getAudioContext from "./Context"
 import { OneshotNode, FWorkletNode } from "./FAudioNodes"
 import { isNumber } from "./Util"
 
@@ -41,3 +41,49 @@ export const createOneshot = (url: string) => new OneshotNode(url)
 
 export const createWorklet = (url: string, registeredName: string) =>
   new FWorkletNode(url, registeredName)
+
+type AudioParamCallback = (param: AudioParam) => void
+
+// https://developer.mozilla.org/en-US/docs/Web/API/BiquadFilterNode
+export const enum FilterTypes {
+  lowpass = "lowpass",
+  highpass = "highpass",
+  bandpass = "bandpass",
+  lowshelf = "lowshelf",
+  highshelf = "highshelf",
+  peaking = "peaking",
+  notch = "notch",
+  allpass = "allpass"
+}
+
+interface FilterParams {
+  frequency: AudioParamCallback
+  detune: AudioParamCallback
+  type: FilterTypes
+  Q: AudioParamCallback
+  gain: AudioParamCallback
+}
+type PartializedFilterParams = Partial<FilterParams>
+
+const optionaizeFilterParams = (p?: PartializedFilterParams): FilterParams => {
+  const d: FilterParams = {
+    detune: (p: AudioParam) => {},
+    type: FilterTypes.lowpass,
+    Q: (p: AudioParam) => {},
+    gain: (p: AudioParam) => {},
+    frequency: (p: AudioParam) => {}
+  }
+  if (!p) return d
+  else return { ...d, ...p }
+}
+
+export const createFilter = (param?: PartializedFilterParams) => {
+  const fil = getAudioContext().createBiquadFilter()
+  const p = optionaizeFilterParams(param)
+  p.detune(fil.detune)
+  p.gain(fil.gain)
+  p.Q(fil.Q)
+  p.frequency(fil.frequency)
+  fil.type = p.type
+  return fil
+}

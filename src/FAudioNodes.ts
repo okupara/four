@@ -1,10 +1,27 @@
 import { from } from "rxjs"
 import { switchMap, shareReplay } from "rxjs/operators"
-import { getAudioContext } from "./Four"
+import getAudioContext from "./Context"
 import { AdsrGain, playAdsr } from "./Adsr"
-import { FBaseNode } from "./Connect"
+
+interface FAudioNode {
+  connect(con: Connectable): void
+}
+export class FBaseNode implements FAudioNode {
+  connect(con: Connectable) {}
+}
+
+export type Connectable =
+  | {
+      connect(
+        destinationNode: AudioNode,
+        output?: number,
+        input?: number
+      ): AudioNode
+    }
+  | FAudioNode
 
 // I don't think to decide easily to use class is not good, but...
+
 export class OneshotNode extends FBaseNode {
   private _url: string
   private _audioBuffer: AudioBuffer
@@ -37,7 +54,7 @@ export class OneshotNode extends FBaseNode {
     return bs
   }
 }
-AudioWorkletNode
+
 export type AudioParamCallback = (
   param: AudioParam,
   currentTime: number
@@ -77,15 +94,19 @@ export class FWorkletNode extends FBaseNode {
   private _audioWorklet: AudioWorkletNode
   private _gainNode: GainNode
   private _ready: boolean
+  private _previousNode: AudioNode
   constructor(url: string, workletName: string) {
     super()
     const context = getAudioContext()
     this._gainNode = context.createGain()
     this._ready = false
-
     from(context.audioWorklet.addModule(url)).subscribe(_ => {
       const w = new AudioWorkletNode(context, workletName)
       this._audioWorklet = w
+      if (this._previousNode) {
+        this._previousNode.connect(this._audioWorklet)
+      }
+      console.log(w)
       this.audioWorklet.connect(this._gainNode)
       this._ready = true
     })
@@ -100,6 +121,39 @@ export class FWorkletNode extends FBaseNode {
     return this._ready
   }
   connect(node: AudioNode) {
+    console.log("check", node)
     this._gainNode.connect(node)
+  }
+  set previousNode(node: AudioNode) {
+    this._previousNode = node
+  }
+}
+
+export type BasicNode = AudioNode | FBaseNode
+
+const isAudioNode = (n: Connectable): n is AudioNode => {
+  if (n instanceof AudioNode) {
+    return true
+  }
+  if (n.connect) {
+    return true
+  }
+  return false
+}
+
+const isFWorkerNode = (n: Connectable): n is FWorkletNode => {
+  if (n instanceof FWorkletNode) return true
+  else return false
+}
+
+export const connect = (from: Connectable, to: Connectable) => {
+  console.log(from, to)
+  if (isAudioNode(from) && isFWorkerNode(to)) {
+    // from.connect(to.gainNode)
+    to.previousNode = from
+    return
+  }
+  if (isAudioNode(from) && isAudioNode(to)) {
+    from.connect(to)
   }
 }

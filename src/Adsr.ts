@@ -1,4 +1,4 @@
-import { getAudioContext } from "./Four"
+import getAudioContext from "./Context"
 import { addListener } from "cluster"
 export interface TimeVal {
   time: number // sec

@@ -47,12 +47,16 @@ module.exports = {
       inject: true,
       template: path.join(process.cwd(), "resources", "index.html")
     }),
-    new CopyWebpackPlugin([
-      "resources/test1.wav",
-      "resources/pipo.mp3",
-      "resources/scheduler.js",
-      "resources/pinknoise.js"
-    ])
+    new CopyWebpackPlugin(
+      [
+        "test1.wav",
+        "pipo.mp3",
+        "scheduler.js",
+        "pinknoise.js",
+        "whitenoise.js",
+        "clipper.js"
+      ].map(e => `resources/${e}`)
+    )
   ],
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".json"]
