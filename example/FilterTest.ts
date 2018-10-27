@@ -1,4 +1,4 @@
-import { track, render, createFNode } from "../src"
+import { track, render, createFNode, mix } from "../src"
 import { timer } from "rxjs"
 import * as h from "../src/Helper"
 
@@ -12,7 +12,6 @@ const t1 = track(
     h.createFilter({
       type: h.FilterTypes.bandpass,
       Q: p => {
-        console.log("default", p.value)
         p.value = 10
       },
       frequency: p => {

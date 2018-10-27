@@ -6,6 +6,7 @@ import simpleSequence from "./SimpleSequenceTest"
 import w from "./WorkletTest"
 import c from "./ClipperTest"
 import f from "./FilterTest"
+import m from "./MixTest"
 
 export default () => (
   <div>
@@ -21,4 +22,5 @@ export default () => (
 // w()
 // console.log("KOOKJK")
 // c()
-f()
+// f()
+m()

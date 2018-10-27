@@ -58,7 +58,7 @@ export const track = (...args: FNodeReducer[]) => {
   const length = args.length
   // if we don't put initial value, reduce runs with filling prev and current, which the first and second elements of a list.
   // and it executes callback length - 1 times.
-  return args.reduce((p, c, i) => {
+  const last = args.reduce((p, c, i) => {
     if (i === 1) {
       FNodeReducer(p.subscribe, {
         nextNode: target.get(c),
@@ -86,11 +86,15 @@ export const track = (...args: FNodeReducer[]) => {
       targetNode: target.get(c)
     })
   })
+  return last.fnode.targetNode
 }
 
-export const mix = (...args: AudioNode[]) =>
+export const mix = (...args: BasicNode[]) =>
   args.reduce((gainNode, currentNode) => {
-    currentNode.connect(gainNode)
+    connect(
+      currentNode,
+      gainNode
+    )
     return gainNode
   }, context().createGain())
 

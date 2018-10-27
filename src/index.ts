@@ -1,3 +1,3 @@
-export { createFNode, track, render } from "./Four"
+export { createFNode, track, render, mix } from "./Four"
 export { OneshotNode } from "./FAudioNodes"
 export { tick$ } from "./Timer"
