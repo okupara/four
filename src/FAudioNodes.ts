@@ -121,13 +121,14 @@ export class FWorkletNode extends FBaseNode {
     return this._ready
   }
   connect(node: AudioNode) {
-    console.log("check", node)
     this._gainNode.connect(node)
   }
   set previousNode(node: AudioNode) {
     this._previousNode = node
   }
 }
+
+export class FeedbackDelayNode extends FBaseNode {}
 
 export type BasicNode = AudioNode | FBaseNode
 

@@ -7,6 +7,8 @@ import w from "./WorkletTest"
 import c from "./ClipperTest"
 import f from "./FilterTest"
 import m from "./MixTest"
+import d from "./DelayTest"
+import fb from "./FeedbackDelayTest"
 
 export default () => (
   <div>
@@ -23,4 +25,6 @@ export default () => (
 // console.log("KOOKJK")
 // c()
 // f()
-m()
+// m()
+// d()
+fb()

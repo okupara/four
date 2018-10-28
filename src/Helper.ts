@@ -65,7 +65,7 @@ interface FilterParams {
 }
 type PartializedFilterParams = Partial<FilterParams>
 
-const optionaizeFilterParams = (p?: PartializedFilterParams): FilterParams => {
+const optionalizeFilterParams = (p?: PartializedFilterParams): FilterParams => {
   const d: FilterParams = {
     detune: (p: AudioParam) => {},
     type: FilterTypes.lowpass,
@@ -79,11 +79,33 @@ const optionaizeFilterParams = (p?: PartializedFilterParams): FilterParams => {
 
 export const createFilter = (param?: PartializedFilterParams) => {
   const fil = getAudioContext().createBiquadFilter()
-  const p = optionaizeFilterParams(param)
+  const p = optionalizeFilterParams(param)
   p.detune(fil.detune)
   p.gain(fil.gain)
   p.Q(fil.Q)
   p.frequency(fil.frequency)
   fil.type = p.type
   return fil
+}
+
+interface DelayParams {
+  delayTime: AudioParamCallback
+  maxDelayTime: number
+}
+type PartializedDelayParams = Partial<DelayParams>
+
+const optionalizeDelayParams = (p?: PartializedDelayParams): DelayParams => {
+  const d: DelayParams = {
+    delayTime: (p: AudioParam) => {},
+    maxDelayTime: 1
+  }
+  if (!p) return d
+  else return { ...d, ...p }
+}
+
+export const createDelay = (param?: PartializedDelayParams) => {
+  const p = optionalizeDelayParams(param)
+  const del = getAudioContext().createDelay(p.maxDelayTime)
+  p.delayTime(del.delayTime)
+  return del
 }
