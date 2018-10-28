@@ -2,6 +2,7 @@ import { from } from "rxjs"
 import { switchMap, shareReplay } from "rxjs/operators"
 import getAudioContext from "./Context"
 import { AdsrGain, playAdsr } from "./Adsr"
+import Reverb from "soundbank-reverb"
 
 interface FAudioNode {
   connect(con: Connectable): void
@@ -128,7 +129,33 @@ export class FWorkletNode extends FBaseNode {
   }
 }
 
-export class FeedbackDelayNode extends FBaseNode {}
+interface IReverb {
+  time: number
+  wet: AudioParam
+  dry: AudioParam
+  filterType: string
+  cutoff: AudioParam
+  connect: (node: AudioNode) => void
+}
+
+export class FReverbNode extends FBaseNode {
+  private _reverb: IReverb
+  constructor() {
+    super()
+    this._reverb = Reverb(getAudioContext())
+    this._reverb.time = 2 //seconds
+    this._reverb.wet.value = 0.7
+    this._reverb.dry.value = 0.5
+    this._reverb.filterType = "lowpass"
+    this._reverb.cutoff.value = 12000 //Hz
+  }
+  connect(node: AudioNode) {
+    this._reverb.connect(node)
+  }
+  get reverb() {
+    return this._reverb
+  }
+}
 
 export type BasicNode = AudioNode | FBaseNode
 
@@ -147,11 +174,18 @@ const isFWorkerNode = (n: Connectable): n is FWorkletNode => {
   else return false
 }
 
+const isFReverbNode = (n: Connectable): n is FReverbNode =>
+  n instanceof FReverbNode
+
 export const connect = (from: Connectable, to: Connectable) => {
-  console.log(from, to)
+  console.log("aa", from, to)
   if (isAudioNode(from) && isFWorkerNode(to)) {
     // from.connect(to.gainNode)
     to.previousNode = from
+    return
+  }
+  if (isAudioNode(from) && isFReverbNode(to)) {
+    from.connect(to.reverb as any)
     return
   }
   if (isAudioNode(from) && isAudioNode(to)) {

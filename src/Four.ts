@@ -71,6 +71,7 @@ export const track = (...args: FNodeReducer[]) => {
         nextNode: target.get(c)
       }).subscribe()
     }
+    console.log("connect", p, c)
     connect(
       target.get(p),
       target.get(c)

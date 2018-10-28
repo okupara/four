@@ -1,5 +1,5 @@
 import getAudioContext from "./Context"
-import { OneshotNode, FWorkletNode } from "./FAudioNodes"
+import { OneshotNode, FWorkletNode, FReverbNode } from "./FAudioNodes"
 import { isNumber } from "./Util"
 
 export type OscilatorTypes = "sine" | "square" | "triangle" | "custom"
@@ -108,4 +108,45 @@ export const createDelay = (param?: PartializedDelayParams) => {
   const del = getAudioContext().createDelay(p.maxDelayTime)
   p.delayTime(del.delayTime)
   return del
+}
+
+// WIP
+export const createReverb = () => {
+  return new FReverbNode()
+}
+
+// I avoid to use "reduction", because I couldn't find any example about the value.
+interface CompressorParams {
+  threashold: AudioParamCallback
+  knee: AudioParamCallback
+  ratio: AudioParamCallback
+  attack: AudioParamCallback
+  release: AudioParamCallback
+}
+
+type PartializedCompressorParams = Partial<CompressorParams>
+const optionalizeCompressorParams = (p?: PartializedCompressorParams) => {
+  const d: CompressorParams = {
+    threashold: () => {},
+    knee: () => {},
+    ratio: () => {},
+    attack: () => {},
+    release: () => {}
+  }
+  if (!p) return d
+  return {
+    ...d,
+    ...p
+  }
+}
+
+export const createDynamicCompressor = (p?: PartializedCompressorParams) => {
+  const np = optionalizeCompressorParams(p)
+  const c = getAudioContext().createDynamicsCompressor()
+  np.threashold(c.threshold)
+  np.knee(c.knee)
+  np.ratio(c.ratio)
+  np.attack(c.attack)
+  np.release(c.release)
+  return c
 }

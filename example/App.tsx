@@ -9,6 +9,7 @@ import f from "./FilterTest"
 import m from "./MixTest"
 import d from "./DelayTest"
 import fb from "./FeedbackDelayTest"
+import r from "./ReverbTest"
 
 export default () => (
   <div>
@@ -27,4 +28,5 @@ export default () => (
 // f()
 // m()
 // d()
-fb()
+// fb()
+r()
